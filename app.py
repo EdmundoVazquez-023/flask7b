@@ -8,6 +8,10 @@ app = Flask(__name__)
 @app.route("/")
 def index():
     return "<p>Hola, Mundo siuuuuuuu!</p>"
+        <a href="/alumnos">
+        <button>Ir a Alumnos</button>
+    </a>
+    
 
 @app.route("/alumnos")
 def alumnos():
