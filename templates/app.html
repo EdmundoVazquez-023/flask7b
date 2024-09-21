@@ -23,7 +23,7 @@
 <body>
     <div class="container mt-5">
         <h2>Encuesta de Experiencia</h2>
-        <form id="experienceForm">
+        <form id="experienceForm" metod="post">
             <div class="form-group mb-3">
                 <label for="name">Nombre y Apellido</label>
                 <input type="text" class="form-control" id="name" name="name" placeholder="Nombre y Apellido" required>
@@ -40,6 +40,23 @@
         </form>
     </div>
 
+<div id="divEncuestas"></div>
+    
+        <!-- table index 0 -->
+        <table class="table table-sm">
+            <thead>
+                <tr>
+                    <th>Nombre y apellido</th>
+                    <th>Comentario</th>
+                    <th>Calificacion</th>
+
+                </tr>
+            </thead>
+            <tbody id="tbodyEncuestas"></tbody>
+        </table>
+    </div>
+
+    
     <script>
         $(document).ready(function () {
             // Validaciones con JQuery Validation
@@ -84,11 +101,21 @@
                 }
             });
 
+
+            
             // Agregar método para validar solo letras
             jQuery.validator.addMethod("lettersonly", function(value, element) {
                 return this.optional(element) || /^[a-zA-Z\s]+$/.test(value);
             }, "Solo se permiten letras.");
+
+            
         });
+
+         $("#experienceForm").submit(function (event) {
+                event.preventDefault()
+
+                $.post("/app/guardar", $(this).serialize(), function (respuesta) {
+                    console.log(respuesta)
     </script>
 
     <!-- Bootstrap JS -->
