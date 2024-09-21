@@ -22,7 +22,7 @@ def alumnosGuardar():
     calificacion = request.form["rating"]
 
     
-    return f"Nombre {nombreapellido} Comentario {commentario} Calificacion {calificacion}"
+    return f"Nombre {nombreapellido} Comentario {comentario} Calificacion {calificacion}"
 
 @app.route("/evento")
 def evento():
