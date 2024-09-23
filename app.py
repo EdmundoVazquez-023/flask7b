@@ -52,18 +52,18 @@ def registrar():
   calificacion = request.form ["rating"]
 
   #conectar a la bd
-    if not con.is_connected():
-        con.reconnect()
+  if not con.is_connected():
+    con.reconnect()
     cursor = con.cursor()
-
-    sql = "INSERT INTO tst0_experiencias (Nombre_Apellido, Comentario, Calificacion) VALUES (%s, %s, %s)"
-    val = (request.form["name"], request.form["comment"], request.form["rating"])
-    cursor.execute(sql, val)
-    
-    con.commit()
-    con.close()
-
-    return "Datos registrados exitosamente"
+  
+  sql = "INSERT INTO tst0_experiencias (Nombre_Apellido, Comentario, Calificacion) VALUES (%s, %s, %s)"
+  val = (request.form["name"], request.form["comment"], request.form["rating"])
+  cursor.execute(sql, val)
+  
+  con.commit()
+  con.close()
+  
+  return "Datos registrados exitosamente"
 
 # Ruta que activa un evento de Pusher
 @app.route("/evento")
