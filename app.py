@@ -54,7 +54,8 @@ def registrar():
   #conectar a la bd
   if not con.is_connected():
     con.reconnect()
-    cursor = con.cursor()
+  
+  cursor = con.cursor()
   
   sql = "INSERT INTO tst0_experiencias (Nombre_Apellido, Comentario, Calificacion) VALUES (%s, %s, %s)"
   val = (request.form["name"], request.form["comment"], request.form["rating"])
