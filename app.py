@@ -46,7 +46,7 @@ def buscar():
 
 @app.route("/registrar", methods=["POST"])
 def registrar():
-    args = request.args
+    args = request.form
 
     if not con.is_connected():
         con.reconnect()
