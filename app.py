@@ -46,8 +46,12 @@ def buscar():
 
 @app.route("/registrar", methods=["POST"])
 def registrar():
-    args = request.form
+#obtener datos del formulario
+  nombreApellido = request.form["name"]
+  comentario = request.form["comment"]
+  calificacion = request.form ["rating"]
 
+  #conectar a la bd
     if not con.is_connected():
         con.reconnect()
     cursor = con.cursor()
@@ -58,6 +62,8 @@ def registrar():
     
     con.commit()
     con.close()
+
+    return "Datos registrados exitosamente"
 
 # Ruta que activa un evento de Pusher
 @app.route("/evento")
