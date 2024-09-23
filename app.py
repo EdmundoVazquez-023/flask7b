@@ -53,7 +53,7 @@ def registrar():
     cursor = con.cursor()
 
     sql = "INSERT INTO tst0_experiencias (Nombre_Apellido, Comentario, Calificacion) VALUES (%s, %s, %s)"
-    val = (args["nombreApellido"], args["comentario"],  args["calificaicon"])
+    val = (request.form["name"], request.form["comment"], request.form["rating"])
     cursor.execute(sql, val)
     
     con.commit()
