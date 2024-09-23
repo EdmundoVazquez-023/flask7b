@@ -27,7 +27,7 @@
 <body>
     <div class="container mt-5">
         <h2>Encuesta de Experiencia</h2>
-        <form id="experienceForm" method="post" action="/registrar">
+        <form id="experienceForm"  action="/registrar" method="post">
             <div class="form-group mb-3">
                 <label for="name">Nombre y Apellido</label>
                 <input type="text" class="form-control" id="name" name="name" placeholder="Nombre y Apellido" required>
@@ -94,7 +94,7 @@
             var channel = pusher.subscribe("canalRegistroEncuesta");
 
             // Evento --> El código que se accionará con la información enviada o el uso del canal
-            channel.bind("registroEventoEncuests", function (temperaturaHumedad) {
+            channel.bind("registroEventoEncuests", function (encuesta) {
                 // 1. Notificar el evento
                 // alert("Ocurrió el evento")
 
