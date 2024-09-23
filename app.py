@@ -72,10 +72,9 @@ def evento():
     )
 
     # Disparando un evento a través de Pusher
-    pusher_client.trigger("my-channel", "my-event", {"message": "Evento enviado correctamente"})
+    pusher_client.trigger("canalRegistroEncuesta", "registroEventoEncuests", args)
+  #    pusher_client.trigger("my-channel", "my-event", args)
+
     
     return args
 
-# Arrancando la aplicación
-if __name__ == "__main__":
-    app.run(debug=True)
