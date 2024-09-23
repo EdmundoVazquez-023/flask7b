@@ -46,25 +46,34 @@ def buscar():
 
 @app.route("/registrar", methods=["POST"])
 def registrar():
-#obtener datos del formulario
-  nombreApellido = request.form["name"]
-  comentario = request.form["comment"]
-  calificacion = request.form ["rating"]
+    # obtener datos del formulario
+    nombreApellido = request.form["name"]
+    comentario = request.form["comment"]
+    calificacion = request.form["rating"]
 
-  #conectar a la bd
-  if not con.is_connected():
-    con.reconnect()
-  
-  cursor = con.cursor()
-  
-  sql = "INSERT INTO tst0_experiencias (Nombre_Apellido, Comentario, Calificacion) VALUES (%s, %s, %s)"
-  val = (request.form["name"], request.form["comment"], request.form["rating"])
-  cursor.execute(sql, val)
-  
-  con.commit()
-  con.close()
-  
-  return "Datos registrados exitosamente"
+    # conectar a la base de datos
+    con = mysql.connector.connect(
+        host="185.232.14.52",
+        database="u760464709_tst_sep",
+        user="u760464709_tst_sep_usr",
+        password="dJ0CIAFF="
+    )
+
+    if con.is_connected():
+        cursor = con.cursor()
+
+        sql = "INSERT INTO tst0_experiencias (Nombre_Apellido, Comentario, Calificacion) VALUES (%s, %s, %s)"
+        val = (nombreApellido, comentario, calificacion)
+        cursor.execute(sql, val)
+
+        con.commit()
+        cursor.close()  # Cerramos el cursor
+        con.close()     # Cerramos la conexión
+
+        return "Datos registrados exitosamente"
+    else:
+        return "Error de conexión a la base de datos"
+
 
 # Ruta que activa un evento de Pusher
 @app.route("/evento")
