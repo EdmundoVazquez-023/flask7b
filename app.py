@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request
 import pusher
 import mysql.connector
-import.pytz
+import pytz
 
 con = mysql.connector.connect(
   host="185.232.14.52",
