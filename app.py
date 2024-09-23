@@ -9,12 +9,12 @@ def index():
     return render_template("app.html")
 
 # Ruta que sirve la página de alumnos
-@app.route("/alumnos")
+@app.route("/app")
 def alumnos():
-    return render_template("alumnos.html")
+    return render_template("app.html")
 
 # Ruta para guardar los datos de los alumnos enviados desde el formulario
-@app.route("/alumnos/guardar", methods=["POST"])
+@app.route("/app/guardar", methods=["POST"])
 def alumnosGuardar():
     nombreapellido = request.form["name"]
     comentario = request.form["comment"]
