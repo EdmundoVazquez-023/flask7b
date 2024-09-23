@@ -1,5 +1,14 @@
 from flask import Flask, render_template, request
 import pusher
+import mysql.connector
+import.pytz
+
+con = mysql.connector.connect(
+  host="185.232.14.52",
+  database="u760464709_tst_sep",
+  user="u760464709_tst_sep_usr",
+  password="dJ0CIAFF="
+)
 
 app = Flask(__name__)
 
@@ -22,6 +31,33 @@ def alumnosGuardar():
 
     # Devolviendo una respuesta con los datos recibidos
     return f"Nombre: {nombreapellido}, Comentario: {comentario}, Calificación: {calificacion}"
+#buscar
+@app.route("/buscar")
+def buscar():
+    if not con.is_connected():
+        con.reconnect()
+    cursor = con.cursor()
+    cursor.execute("SELECT * FROM tst0_experiencias ORDER BY Id_Experiencia DESC")
+
+    registros = cursor.fetchall()
+    con.close()
+
+    return registros
+
+@app.route("/registrar", methods=["POST"])
+def registrar():
+    args = request.args
+
+    if not con.is_connected():
+        con.reconnect()
+    cursor = con.cursor()
+
+    sql = "INSERT INTO tst0_experiencias (Nombre_Apellido, Comentario, Calificacion) VALUES (%s, %s, %s)"
+    val = (args["nombreApellido"], args["comentario"],  args["calificaicon"])
+    cursor.execute(sql, val)
+    
+    con.commit()
+    con.close()
 
 # Ruta que activa un evento de Pusher
 @app.route("/evento")
@@ -38,7 +74,7 @@ def evento():
     # Disparando un evento a través de Pusher
     pusher_client.trigger("my-channel", "my-event", {"message": "Evento enviado correctamente"})
     
-    return "Evento enviado correctamente"
+    return args
 
 # Arrancando la aplicación
 if __name__ == "__main__":
