@@ -44,38 +44,44 @@ def buscar():
 
     return registros
 
+# Ruta para manejar el formulario de registro
 @app.route("/registrar", methods=["POST"])
-def registrar():
-    if request.method == 'POST':
-        # Obtener datos del formulario
-        nombreApellido = request.form.get("name")
-        comentario = request.form.get("comment")
-        calificacion = request.form.get("rating")
+def registrar_experiencia():
+    # Capturar datos del formulario
+    nombre = request.form.get('name')
+    comentario = request.form.get('comment')
+    calificacion = request.form.get('rating')
+    
+    try:
+        # Conectar a la base de datos
+        connection = mysql.connector.connect(**db_config)
+        cursor = connection.cursor()
 
-        try:
-            # Conectar a la base de datos
-            con = mysql.connector.connect(
-                host="185.232.14.52",
-                database="u760464709_tst_sep",
-                user="u760464709_tst_sep_usr",
-                password="dJ0CIAFF="
-            )
-            
-            cursor = con.cursor()
-            sql = "INSERT INTO tst0_experiencias (Nombre_Apellido, Comentario, Calificacion) VALUES (%s, %s, %s)"
-            val = (nombreApellido, comentario, calificacion)
-            cursor.execute(sql, val)
-            con.commit()
+        # Consulta para insertar los datos
+        query = "INSERT INTO tst0_experiencias (Nombre_Apellido, Comentario, Calificacion) VALUES (%s, %s, %s)"
+        values = (nombre, comentario, calificacion)
+        
+        # Ejecutar la consulta
+        cursor.execute(query, values)
+        connection.commit()  # Asegura que los cambios se guarden
 
-            return "Datos registrados exitosamente"
-        except mysql.connector.Error as err:
-            return f"Error: {err}"
-        finally:
-            if cursor:
-                cursor.close()  # Cerramos el cursor
-            if con.is_connected():
-                con.close()     # Cerramos la conexión
+        # Cerrar la conexión
+        cursor.close()
+        connection.close()
 
+        # Redirigir a una página de éxito o agradecimiento
+        return redirect(url_for('agradecimiento'))
+
+    except mysql.connector.Error as err:
+        return f"Error: {err}"
+
+# Ruta para la página de agradecimiento
+@app.route("/agradecimiento")
+def agradecimiento():
+    return "<h1>Gracias por tu participación!</h1>"
+
+if __name__ == "__main__":
+    app.run(debug=True)
 
 # Ruta que activa un evento de Pusher
 @app.route("/evento")
