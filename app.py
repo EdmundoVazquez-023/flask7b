@@ -46,33 +46,35 @@ def buscar():
 
 @app.route("/registrar", methods=["POST"])
 def registrar():
-    # obtener datos del formulario
-    nombreApellido = request.form["name"]
-    comentario = request.form["comment"]
-    calificacion = request.form["rating"]
+    if request.method == 'POST':
+        # Obtener datos del formulario
+        nombreApellido = request.form.get("name")
+        comentario = request.form.get("comment")
+        calificacion = request.form.get("rating")
 
-    # conectar a la base de datos
-    con = mysql.connector.connect(
-        host="185.232.14.52",
-        database="u760464709_tst_sep",
-        user="u760464709_tst_sep_usr",
-        password="dJ0CIAFF="
-    )
+        try:
+            # Conectar a la base de datos
+            con = mysql.connector.connect(
+                host="185.232.14.52",
+                database="u760464709_tst_sep",
+                user="u760464709_tst_sep_usr",
+                password="dJ0CIAFF="
+            )
+            
+            cursor = con.cursor()
+            sql = "INSERT INTO tst0_experiencias (Nombre_Apellido, Comentario, Calificacion) VALUES (%s, %s, %s)"
+            val = (nombreApellido, comentario, calificacion)
+            cursor.execute(sql, val)
+            con.commit()
 
-    if con.is_connected():
-        cursor = con.cursor()
-
-        sql = "INSERT INTO tst0_experiencias (Nombre_Apellido, Comentario, Calificacion) VALUES (%s, %s, %s)"
-        val = (nombreApellido, comentario, calificacion)
-        cursor.execute(sql, val)
-
-        con.commit()
-        cursor.close()  # Cerramos el cursor
-        con.close()     # Cerramos la conexión
-
-        return "Datos registrados exitosamente"
-    else:
-        return "Error de conexión a la base de datos"
+            return "Datos registrados exitosamente"
+        except mysql.connector.Error as err:
+            return f"Error: {err}"
+        finally:
+            if cursor:
+                cursor.close()  # Cerramos el cursor
+            if con.is_connected():
+                con.close()     # Cerramos la conexión
 
 
 # Ruta que activa un evento de Pusher
