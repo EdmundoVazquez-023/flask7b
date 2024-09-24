@@ -45,7 +45,7 @@ def buscar():
     return registros
 
 # Ruta para manejar el formulario de registro
-@app.route("/registrar", methods=["POST"])
+@app.route("/form", methods=["POST"])
 def registrar_experiencia():
     # Capturar datos del formulario
     nombre = request.form.get('name')
