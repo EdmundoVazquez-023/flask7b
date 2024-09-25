@@ -59,7 +59,7 @@ def registrarForm():
         cursor = conexion_MySQLdb.cursor(dictionary=True)
         
         # Consulta para insertar los datos
-        sql = ("INSERT INTO tst0_experiencias(Nombre_Apellido, Comentario, Calificacion) VALUES (%s, %s, %s)")
+        sql = "INSERT INTO tst0_experiencias(Nombre_Apellido, Comentario, Calificacion) VALUES (%s, %s, %s)"
         valores = (nombre, comentario, calificacion)
         
         # Ejecutar la consulta y hacer commit
