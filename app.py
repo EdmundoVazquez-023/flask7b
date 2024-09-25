@@ -45,43 +45,43 @@ def buscar():
     return registros
 
 # Ruta para manejar el formulario de registro
-@app.route("/registrar", methods=["POST"])
-def registrar_experiencia():
-    # Capturar datos del formulario
-    nombre = request.form.get('name')
-    comentario = request.form.get('comment')
-    calificacion = request.form.get('rating')
+@app.route('/registrar', methods=['GET', 'POST'])
+def registrarForm():
+    msg = ''
     
-    try:
-        # Conectar a la base de datos
-        connection = mysql.connector.connect(**db_config)
-        cursor = connection.cursor()
-
-        # Consulta para insertar los datos
-        query = "INSERT INTO tst0_experiencias (Nombre_Apellido, Comentario, Calificacion) VALUES (%s, %s, %s)"
-        values = (nombre, comentario, calificacion)
+    if request.method == 'POST':
+        nombre = request.form['nombre']
+        comentario = request.form['comment']
+        calificacion = request.form['rating']
         
-        # Ejecutar la consulta
-        cursor.execute(query, values)
-        connection.commit()  # Asegura que los cambios se guarden
-
-        # Cerrar la conexión
+        # Conexión a la base de datos
+        conexion_MySQLdb = connectionBD()
+        cursor = conexion_MySQLdb.cursor(dictionary=True)
+        
+        # Consulta para insertar los datos
+        sql = ("INSERT INTO tst0_experiencias(Nombre_Apellido, Comentario, Calificacion) VALUES (%s, %s, %s)")
+        valores = (nombre, comentario, calificacion)
+        
+        # Ejecutar la consulta y hacer commit
+        cursor.execute(sql, valores)
+        conexion_MySQLdb.commit()
+        
+        # Cerrar cursor y conexión
         cursor.close()
-        connection.close()
+        conexion_MySQLdb.close()
 
-        # Redirigir a una página de éxito o agradecimiento
-        return redirect(url_for('agradecimiento'))
+        msg = 'Registro con éxito'
+        
+        # Información adicional para depuración
+        print(cursor.rowcount, "registro insertado")
+        print("1 registro insertado, id", cursor.lastrowid)
 
-    except mysql.connector.Error as err:
-        return f"Error: {err}"
-
-# Ruta para la página de agradecimiento
-@app.route("/agradecimiento")
-def agradecimiento():
-    return "<h1>Gracias por tu participación!</h1>"
-
-if __name__ == "__main__":
-    app.run(debug=True)
+        # Renderizar página con mensaje de éxito
+        return render_template('public/index.html', msg='Formulario enviado con éxito')
+    
+    # Si se accede con GET, simplemente muestra el formulario
+    else:
+        return render_template('public/index.html', msg='Método HTTP incorrecto')
 
 # Ruta que activa un evento de Pusher
 @app.route("/evento")
