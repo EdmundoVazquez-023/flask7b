@@ -77,11 +77,11 @@ def registrarForm():
         print("1 registro insertado, id", cursor.lastrowid)
 
         # Renderizar página con mensaje de éxito
-        return render_template('public/index.html', msg='Formulario enviado con éxito')
+        return render_template('public/app.html', msg='Formulario enviado con éxito')
     
     # Si se accede con GET, simplemente muestra el formulario
     else:
-        return render_template('public/index.html', msg='Método HTTP incorrecto')
+        return render_template('public/app.html', msg='Método HTTP incorrecto')
 
 # Ruta que activa un evento de Pusher
 @app.route("/evento")
