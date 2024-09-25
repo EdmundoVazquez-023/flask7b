@@ -50,7 +50,7 @@ def registrarForm():
     msg = ''
     
     if request.method == 'POST':
-        nombre = request.form['nombre']
+        nombre = request.form['name']
         comentario = request.form['comment']
         calificacion = request.form['rating']
         
