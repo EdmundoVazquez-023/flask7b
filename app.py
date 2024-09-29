@@ -44,45 +44,29 @@ def buscar():
 
     return registros
 
-# Ruta para manejar el formulario de registro
-@app.route('/registrar', methods=['GET', 'POST'])
-def registrarForm():
-    msg = ''
+@app.route("/registrar", methods=["GET"])
+def registrar():
+    args = request.args  # Obtener los parámetros desde la URL
+
+    if not con.is_connected():
+        con.reconnect()
+
+    cursor = con.cursor()
+
+    # SQL para insertar los datos en la tabla 'tst0_experiencias'
+    sql = "INSERT INTO tst0_experiencias (Nombre_Apellido, Comentario, Calificacion) VALUES (%s, %s, %s)"
     
-    if request.method == 'POST':
-        nombre = request.form['name']
-        comentario = request.form['comment']
-        calificacion = request.form['rating']
-        
-        # Conexión a la base de datos
-        conexion_MySQLdb = connectionBD()
-        cursor = conexion_MySQLdb.cursor(dictionary=True)
-        
-        # Consulta para insertar los datos
-        sql = "INSERT INTO tst0_experiencias(Nombre_Apellido, Comentario, Calificacion) VALUES (%s, %s, %s)"
-        valores = (nombre, comentario, calificacion)
-        
-        # Ejecutar la consulta y hacer commit
-        cursor.execute(sql, valores)
-        conexion_MySQLdb.commit()
-        
-        # Cerrar cursor y conexión
-        cursor.close()
-        conexion_MySQLdb.close()
-
-        msg = 'Registro con éxito'
-        
-        # Información adicional para depuración
-        print(cursor.rowcount, "registro insertado")
-        print("1 registro insertado, id", cursor.lastrowid)
-
-        # Renderizar página con mensaje de éxito
-        return render_template('public/app.html', msg='Formulario enviado con éxito')
+    # Valores obtenidos de los parámetros en la URL (por ejemplo: ?name=Juan&comment=Buen+trabajo&rating=5)
+    val = (args.get("name"), args.get("comment"), args.get("rating"))
     
-    # Si se accede con GET, simplemente muestra el formulario
-    else:
-        return render_template('public/app.html', msg='Método HTTP incorrecto')
+    cursor.execute(sql, val)
+    con.commit()
+    
+    cursor.close()
+    con.close()
 
+    # Devolver algún mensaje de confirmación
+    return "Registro guardado correctamente"
 # Ruta que activa un evento de Pusher
 @app.route("/evento")
 def evento():
