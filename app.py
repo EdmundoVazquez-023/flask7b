@@ -65,11 +65,7 @@ def registrar():
     cursor.close()
     con.close()
 
-    # Devolver algún mensaje de confirmación
-    return "Registro guardado correctamente"
-# Ruta que activa un evento de Pusher
-@app.route("/evento")
-def evento():
+
     # Conexión con Pusher utilizando las credenciales correctas
     pusher_client = pusher.Pusher(
         app_id="1766032",
