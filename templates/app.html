@@ -134,7 +134,7 @@
 
                    
 
-                        $("#tbodyTemperaturaHumedad").append(`<tr>
+                        $("#tbodyEncuestas").append(`<tr>
                          <td>${encuesta[1]}</td>
                             <td>${encuesta[2]}</td>
                             <td>${encuesta[3]}</td>
@@ -169,7 +169,7 @@
             })
             
             $(document).on("click", ".btn-eliminar", function (event) {
-                if (!confirm("¿Quieres eliminar este registro?")) {
+                if (!confirm("¿Quieres eliminar este registro? dale compare")) {
                     return
                 }
 
