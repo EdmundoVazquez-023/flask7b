@@ -1,37 +1,65 @@
-from flask import Flask, render_template, request
+
+    # Codigo del profe a modifcarrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr
+
+
+# python.exe -m venv .venv
+# cd .venv/Scripts
+# activate.bat
+# py -m ensurepip --upgrade
+
+from flask import Flask
+
+from flask import render_template
+from flask import request
+from flask import jsonify, make_response
+
 import pusher
+
 import mysql.connector
+import datetime
 import pytz
 
 con = mysql.connector.connect(
-  host="185.232.14.52",
-  database="u760464709_tst_sep",
-  user="u760464709_tst_sep_usr",
-  password="dJ0CIAFF="
+    host="185.232.14.52",
+    database="u760464709_tst_sep",
+    user="u760464709_tst_sep_usr",
+    password="dJ0CIAFF="
 )
 
 app = Flask(__name__)
 
-# Ruta principal que sirve una página de inicio
 @app.route("/")
 def index():
+    con.close()
+
     return render_template("app.html")
 
-# Ruta que sirve la página de alumnos
-@app.route("/app")
+@app.route("/alumnos")
 def alumnos():
-    return render_template("app.html")
+    con.close()
 
-# Ruta para guardar los datos de los alumnos enviados desde el formulario
-@app.route("/app/guardar", methods=["POST"])
+    return render_template("alumnos.html")
+
+@app.route("/alumnos/guardar", methods=["POST"])
 def alumnosGuardar():
-    nombreapellido = request.form["name"]
-    comentario = request.form["comment"]
-    calificacion = request.form["rating"]
+    con.close()
+    matricula      = request.form["txtMatriculaFA"]
+    nombreapellido = request.form["txtNombreApellidoFA"]
 
-    # Devolviendo una respuesta con los datos recibidos
-    return f"Nombre: {nombreapellido}, Comentario: {comentario}, Calificación: {calificacion}"
-#buscar
+    return f"Matrícula {matricula} Nombre y Apellido {nombreapellido}"
+
+# Código usado en las prácticas
+def notificarActualizacionEncuesta():
+    pusher_client = pusher.Pusher(
+        app_id="1714541",
+        key="2df86616075904231311",
+        secret="2f91d936fd43d8e85a1a",
+        cluster="us2",
+        ssl=True
+    )
+
+    pusher_client.trigger("canalRegistrosTemperaturaHumedad", "registroTemperaturaHumedad", args)
+
 @app.route("/buscar")
 def buscar():
     if not con.is_connected():
@@ -44,41 +72,89 @@ def buscar():
 
     return registros
 
-@app.route("/registrar", methods=["GET"])
-def registrar():
-    args = request.args  # Obtener los parámetros desde la URL
+    return make_response(jsonify(registros))
 
+
+
+@app.route("/guardar", methods=["POST"])
+def guardar():
     if not con.is_connected():
         con.reconnect()
 
+    id          = request.form["id"]
+    nombreapellido = request.form["nombreapellido"]
+    comentario     = request.form["comentario"]
+    calificacion     = request.form["calificacion"]    
     cursor = con.cursor()
 
-    # SQL para insertar los datos en la tabla 'tst0_experiencias'
-    sql = "INSERT INTO tst0_experiencias (Nombre_Apellido, Comentario, Calificacion) VALUES (%s, %s, %s)"
-    
-    # Valores obtenidos de los parámetros en la URL (por ejemplo: ?name=Juan&comment=Buen+trabajo&rating=5)
-    val = (args.get("name"), args.get("comment"), args.get("rating"))
+    if id:
+        sql = """
+        UPDATE tst0_experiencias SET
+        NombreApellido = %s,
+        Comentario     = %s,
+        Calificacion     = %s
+
+        WHERE Id_Experiencia = %s
+        """
+        val = (nombreapellido, comentario, calificacion, id)
+    else:
+        sql = """
+        INSERT INTO tst0_experiencias (NombreApellido, Comentario, Calificacion)
+                        VALUES (%s,          %s,      %s,       %s)
+        """
+        val =                  (nombreapellido, comentario, calificacion)
     
     cursor.execute(sql, val)
     con.commit()
-    
-    cursor.close()
     con.close()
 
+    notificarActualizacionEncuesta()
 
-    # Conexión con Pusher utilizando las credenciales correctas
-    pusher_client = pusher.Pusher(
-        app_id="1766032",
-        key="e7b4efacf7381f83e05e",
-        secret="134ff4754740b57ad585",
-        cluster="us2",
-        ssl=True
-    )
+    return make_response(jsonify({}))
 
-    # Disparando un evento a través de Pusher
-    pusher_client.trigger("canalRegistroEncuesta", "registroEventoEncuests", args)
-  #    pusher_client.trigger("my-channel", "my-event", args)
+@app.route("/editar", methods=["GET"])
+def editar():
+    if not con.is_connected():
+        con.reconnect()
 
-    
-    return args
+    id = request.args["id"]
+
+    cursor = con.cursor(dictionary=True)
+    sql    = """
+    SELECT Id_Experiencia, NombreApellido, Calificacion, Comentario FROM tst0_experiencias
+    WHERE Id_Experiencia = %s
+    """
+    val    = (id,)
+
+    cursor.execute(sql, val)
+    registros = cursor.fetchall()
+    con.close()
+
+    return make_response(jsonify(registros))
+
+@app.route("/eliminar", methods=["POST"])
+def eliminar():
+    if not con.is_connected():
+        con.reconnect()
+
+    id = request.form["id"]
+
+    cursor = con.cursor(dictionary=True)
+    sql    = """
+    DELETE FROM tst0_experiencias
+    WHERE Id_Experiencia = %s
+    """
+    val    = (id,)
+
+    cursor.execute(sql, val)
+    con.commit()
+    con.close()
+
+    notificarActualizacionEncuesta()
+
+    return make_response(jsonify({}))
+
+
+
+
 
