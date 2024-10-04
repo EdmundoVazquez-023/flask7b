@@ -51,14 +51,15 @@ def alumnosGuardar():
 # Código usado en las prácticas
 def notificarActualizacionEncuesta():
     pusher_client = pusher.Pusher(
-        app_id="1714541",
-        key="2df86616075904231311",
-        secret="2f91d936fd43d8e85a1a",
+        app_id="1766032",
+        key="e7b4efacf7381f83e05e",
+        secret="134ff4754740b57ad585",
         cluster="us2",
         ssl=True
+
     )
 
-    pusher_client.trigger("canalRegistrosTemperaturaHumedad", "registroTemperaturaHumedad", args)
+    pusher_client.trigger("canalRegistroEncuesta", "registroEventoEncuests", args)
 
 @app.route("/buscar")
 def buscar():
