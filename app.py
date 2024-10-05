@@ -101,7 +101,7 @@ def guardar():
     else:
         sql = """
         INSERT INTO tst0_experiencias (NombreApellido, Comentario, Calificacion)
-                        VALUES (%s,          %s,      %s,       %s)
+                        VALUES (%s,          %s,      %s       )
         """
         val =                  (nombreapellido, comentario, calificacion)
     
