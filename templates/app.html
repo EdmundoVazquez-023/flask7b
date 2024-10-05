@@ -135,9 +135,9 @@
                    
 
                         $("#tbodyEncuestas").append(`<tr>
-                         <td>${encuesta[1]}</td>
-                            <td>${encuesta[2]}</td>
-                            <td>${encuesta[3]}</td>
+                            <td>${encuesta["NombreApellido"]}</td>
+                            <td>${encuesta["Comentario"]}</td>
+                            <td>${encuesta["Calificacion"]}</td>
 
                             
                             <td>
@@ -162,7 +162,7 @@
                     .val(encuesta["Id_Experiencia"])
                     .trigger("focus")
 
-                    $("#nombreapellido").val(encuesta["NombreApellido"])
+                    $("#nombreApellido").val(encuesta["NombreApellido"])
                     $("#comentario").val(encuesta["Comentario"])
                         $("#calificacion").val(encuesta["Calificacion"])
                 })
