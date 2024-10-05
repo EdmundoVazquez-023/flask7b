@@ -83,15 +83,15 @@ def guardar():
         con.reconnect()
 
     id          = request.form["id"]
-    nombreapellido = request.form["nombreapellido"]
-    comentario     = request.form["comentario"]
-    calificacion     = request.form["calificacion"]    
+    nombreapellido = request.form["nombreApellido"]
+    comentario     = request.form["Comentario"]
+    calificacion     = request.form["Calificacion"]    
     cursor = con.cursor()
 
     if id:
         sql = """
         UPDATE tst0_experiencias SET
-        NombreApellido = %s,
+        Nombre_Apellido = %s,
         Comentario     = %s,
         Calificacion     = %s
 
@@ -100,7 +100,7 @@ def guardar():
         val = (nombreapellido, comentario, calificacion, id)
     else:
         sql = """
-        INSERT INTO tst0_experiencias (NombreApellido, Comentario, Calificacion)
+        INSERT INTO tst0_experiencias (Nombre_Apellido, Comentario, Calificacion)
                         VALUES (%s,          %s,      %s       )
         """
         val =                  (nombreapellido, comentario, calificacion)
@@ -122,7 +122,7 @@ def editar():
 
     cursor = con.cursor(dictionary=True)
     sql    = """
-    SELECT Id_Experiencia, NombreApellido, Calificacion, Comentario FROM tst0_experiencias
+    SELECT Id_Experiencia, Nombre_Apellido, Comentario, Calificacion FROM tst0_experiencias
     WHERE Id_Experiencia = %s
     """
     val    = (id,)
