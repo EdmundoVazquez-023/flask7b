@@ -124,7 +124,7 @@ def editar():
     sql    = """
     SELECT Id_Experiencia, Nombre_Apellido, Comentario, Calificacion FROM tst0_experiencias
     WHERE Id_Experiencia = %s
-    """"
+    """
     val    = (id,)
 
     cursor.execute(sql, val)
@@ -144,7 +144,7 @@ def eliminar():
     sql    = """
     DELETE FROM tst0_experiencias
     WHERE Id_Experiencia = %s
-    """"
+    """
     val    = (id,)
 
     cursor.execute(sql, val)
