@@ -121,7 +121,7 @@ def editar():
     id = request.args["id"]
 
     cursor = con.cursor(dictionary=True)
-    sql    = """"
+    sql    = """
     SELECT Id_Experiencia, Nombre_Apellido, Comentario, Calificacion FROM tst0_experiencias
     WHERE Id_Experiencia = %s
     """"
@@ -141,7 +141,7 @@ def eliminar():
     id = request.form["id"]
 
     cursor = con.cursor(dictionary=True)
-    sql    = """"
+    sql    = """
     DELETE FROM tst0_experiencias
     WHERE Id_Experiencia = %s
     """"
