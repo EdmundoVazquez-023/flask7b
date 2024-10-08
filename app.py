@@ -1,7 +1,3 @@
-
-    # Codigo del profe a modifcarrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr
-
-
 # python.exe -m venv .venv
 # cd .venv/Scripts
 # activate.bat
@@ -49,33 +45,33 @@ def alumnosGuardar():
     return f"Matrícula {matricula} Nombre y Apellido {nombreapellido}"
 
 # Código usado en las prácticas
-def notificarActualizacionEncuesta():
+def notificarActualizacionTemperaturaHumedad():
     pusher_client = pusher.Pusher(
-        app_id="1766032",
-        key="e7b4efacf7381f83e05e",
-        secret="134ff4754740b57ad585",
+        app_id="1714541",
+        key="2df86616075904231311",
+        secret="2f91d936fd43d8e85a1a",
         cluster="us2",
         ssl=True
-
     )
 
-    pusher_client.trigger("canalRegistroEncuesta", "registroEventoEncuests", args)
+    pusher_client.trigger("canalRegistrosTemperaturaHumedad", "registroTemperaturaHumedad", args)
 
 @app.route("/buscar")
 def buscar():
     if not con.is_connected():
         con.reconnect()
-    cursor = con.cursor()
-    cursor.execute("SELECT * FROM tst0_experiencias ORDER BY Id_Experiencia DESC")
 
+    cursor = con.cursor(dictionary=True)
+    cursor.execute("""
+    SELECT Id_Log, Temperatura, Humedad, DATE_FORMAT(Fecha_Hora, '%d/%m/%Y') AS Fecha, DATE_FORMAT(Fecha_Hora, '%H:%i:%s') AS Hora FROM sensor_log
+    ORDER BY Id_Log DESC
+    LIMIT 10 OFFSET 0
+    """)
     registros = cursor.fetchall()
+
     con.close()
 
-    return registros
-
     return make_response(jsonify(registros))
-
-
 
 @app.route("/guardar", methods=["POST"])
 def guardar():
@@ -83,33 +79,32 @@ def guardar():
         con.reconnect()
 
     id          = request.form["id"]
-    nombreapellido = request.form["NombreApellido"]
-    comentario     = request.form["Comentario"]
-    calificacion     = request.form["Calificacion"]    
+    temperatura = request.form["temperatura"]
+    humedad     = request.form["humedad"]
+    fechahora   = datetime.datetime.now(pytz.timezone("America/Matamoros"))
+    
     cursor = con.cursor()
 
     if id:
         sql = """
-        UPDATE tst0_experiencias SET
-        Nombre_Apellido = %s,
-        Comentario     = %s,
-        Calificacion     = %s
-
-        WHERE Id_Experiencia = %s
+        UPDATE sensor_log SET
+        Temperatura = %s,
+        Humedad     = %s
+        WHERE Id_Log = %s
         """
-        val = (nombreapellido, comentario, calificacion, id)
+        val = (temperatura, humedad, id)
     else:
         sql = """
-        INSERT INTO tst0_experiencias (Nombre_Apellido, Comentario, Calificacion)
-                        VALUES (%s,          %s,      %s       )
+        INSERT INTO sensor_log (Temperatura, Humedad, Fecha_Hora)
+                        VALUES (%s,          %s,      %s)
         """
-        val =                  (nombreapellido, comentario, calificacion)
+        val =                  (temperatura, humedad, fechahora)
     
     cursor.execute(sql, val)
     con.commit()
     con.close()
 
-    notificarActualizacionEncuesta()
+    notificarActualizacionTemperaturaHumedad()
 
     return make_response(jsonify({}))
 
@@ -122,8 +117,8 @@ def editar():
 
     cursor = con.cursor(dictionary=True)
     sql    = """
-    SELECT Id_Experiencia, Nombre_Apellido, Comentario, Calificacion FROM tst0_experiencias
-    WHERE Id_Experiencia = %s
+    SELECT Id_Log, Temperatura, Humedad FROM sensor_log
+    WHERE Id_Log = %s
     """
     val    = (id,)
 
@@ -142,8 +137,8 @@ def eliminar():
 
     cursor = con.cursor(dictionary=True)
     sql    = """
-    DELETE FROM tst0_experiencias
-    WHERE Id_Experiencia = %s
+    DELETE FROM sensor_log
+    WHERE Id_Log = %s
     """
     val    = (id,)
 
@@ -151,11 +146,6 @@ def eliminar():
     con.commit()
     con.close()
 
-    notificarActualizacionEncuesta()
+    notificarActualizacionTemperaturaHumedad()
 
     return make_response(jsonify({}))
-
-
-
-
-
