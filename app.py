@@ -49,7 +49,7 @@ def alumnosGuardar():
     return f"Matrícula {matricula} Nombre y Apellido {nombreapellido}"
 
 # Código usado en las prácticas
-def notificarActualizacionEncuesta():
+def notificarActualizacionEncuesta(data=None):
     pusher_client = pusher.Pusher(
         app_id="1766032",
         key="e7b4efacf7381f83e05e",
@@ -59,7 +59,7 @@ def notificarActualizacionEncuesta():
 
     )
 
-    pusher_client.trigger("canalRegistroEncuesta", "registroEventoEncuests", args)
+    pusher_client.trigger("canalRegistroEncuesta", "registroEventoEncuests", data or {})
 
 @app.route("/buscar")
 def buscar():
@@ -151,7 +151,7 @@ def eliminar():
     con.commit()
     con.close()
 
-    notificarActualizacionEncuesta()
+    notificarActualizacionEncuesta(data={"id_eliminado": id})
 
     return make_response(jsonify({}))
 
