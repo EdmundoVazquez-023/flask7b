@@ -118,7 +118,7 @@ def editar():
     if not con.is_connected():
         con.reconnect()
 
-    id = request.args["Id"]
+    id = request.args["id"]
 
     cursor = con.cursor(dictionary=True)
     sql    = """
