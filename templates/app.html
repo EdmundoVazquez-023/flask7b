@@ -151,22 +151,24 @@
 
             buscar()
 
-            $(document).on("click", ".btn-editar", function (event) {
-                var id = $(this).attr("data-id")
+           $(document).on("click", ".btn-editar", function (event) {
+    var id = $(this).attr("data-id");
 
-                $.get("/editar", {id: id}, function (respuesta) {
-                    console.log(respuesta)
-                    var encuesta = respuesta[0]
+    $.get("/editar", { id: id }, function (respuesta) {
+        console.log(respuesta); // Verifica qué está devolviendo el servidor
+        if (respuesta.length > 0) {
+            var encuesta = respuesta[0];
 
-                    $("#id")
-                    .val(encuesta["Id_Experiencia"])
-                    .trigger("focus")
+            $("#id").val(encuesta["Id_Experiencia"]).trigger("focus");
+            $("#NombreApellido").val(encuesta["Nombre_Apellido"]);
+            $("#Comentario").val(encuesta["Comentario"]);
+            $("#Calificacion").val(encuesta["Calificacion"]);
+        } else {
+            alert("No se encontró la encuesta con el ID proporcionado.");
+        }
+    });
+});
 
-                    $("#NombreApellido").val(encuesta["Nombre_Apellido"])
-                    $("#Comentario").val(encuesta["Comentario"])
-                    $("#Calificacion").val(encuesta["Calificacion"])
-                })
-            })
             
             $(document).on("click", ".btn-eliminar", function (event) {
                 if (!confirm("¿Quieres eliminar este registro? dale compare")) {
