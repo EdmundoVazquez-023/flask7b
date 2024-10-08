@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -16,21 +14,16 @@
 </head>
 <body>
     <div class="container">
-      <form id="frmEncuestas" method="post">
+      <form id="frmTemperaturaHumedad" method="post">
           <input type="hidden" id="id" name="id">
 
           <div class="mb-1">
-              <label for="NombreApellido">Nombre y Apellido</label>
-              <input type="text" id="NombreApellido" name="NombreApellido" class="form-control">
+              <label for="temperatura">Temperatura</label>
+              <input type="number" id="temperatura" name="temperatura" class="form-control">
           </div>
           <div class="mb-1">
-              <label for="Comentario">Comentario</label>
-              <input type="text" id="Comentario" name="Comentario" class="form-control">
-          </div>
-
-               <div class="mb-1">
-              <label for="Calificacion">Calificacion</label>
-              <input type="number" id="Calificacion" name="Calificacion" class="form-control">
+              <label for="humedad">Humedad</label>
+              <input type="number" id="humedad" name="humedad" class="form-control">
           </div>
           <div class="mb-1">
               <button id="guardar" name="guardar" class="btn btn-dark">Guardar</button>
@@ -40,13 +33,14 @@
       <table class="table table-sm">
         <thead>
           <tr>
-            <th>Nombre y Apellido</th>
-            <th>Comentario</th>
-            <th>Calificacion</th>
+            <th>Temperatura</th>
+            <th>Humedad</th>
+            <th>Fecha</th>
+            <th>Hora</th>
             <th></th>
           </tr>
         </thead>
-        <tbody id="tbodyEncuestas"></tbody>
+        <tbody id="tbodyTemperaturaHumedad"></tbody>
       </table>
     </div>
 
@@ -119,30 +113,33 @@
         })
     </script>
 
-<!----------------------------------------------------------- Seguir modificando  ----------------------------------------------------------------------->
-
-    
     <script>
         window.addEventListener("load", function (event) {
             function buscar() {
                 $.get("/buscar", function (respuesta) {
-                    $("#tbodyEncuestas").html("")
+                    $("#tbodyTemperaturaHumedad").html("")
 
+                    var fechaAnterior = ""
 
                     for (var x in respuesta) {
-                        var encuesta = respuesta[x]
+                        var temperaturaHumedad = respuesta[x]
 
-                   
+                        var fecha = ""
+                        var fechaTemp = temperaturaHumedad["Fecha"]
 
-                        $("#tbodyEncuestas").append(`<tr>
-                            <td>${encuesta[1]}</td>
-                            <td>${encuesta[2]}</td>
-                            <td>${encuesta[3]}</td>
+                        if (fechaAnterior != fechaTemp) {
+                            fecha         = fechaTemp
+                            fechaAnterior = fechaTemp
+                        }
 
-                            
+                        $("#tbodyTemperaturaHumedad").append(`<tr>
+                            <td>${temperaturaHumedad["Temperatura"]}</td>
+                            <td>${temperaturaHumedad["Humedad"]}</td>
+                            <td>${fecha}</td>
+                            <td>${temperaturaHumedad["Hora"]}</td>
                             <td>
-                                <button class="btn btn-primary btn-editar" data-id="${encuesta["Id_Experiencia"]}">Editar</button>
-                                <button class="btn btn-danger btn-eliminar" data-id="${encuesta["Id_Experiencia"]}">Eliminar</button>
+                                <button class="btn btn-primary btn-editar" data-id="${temperaturaHumedad["Id_Log"]}">Editar</button>
+                                <button class="btn btn-danger btn-eliminar" data-id="${temperaturaHumedad["Id_Log"]}">Eliminar</button>
                             </td>
                         </tr>`)
                     }
@@ -151,27 +148,24 @@
 
             buscar()
 
-           $(document).on("click", ".btn-editar", function (event) {
-    var id = $(this).attr("data-id");
+            $(document).on("click", ".btn-editar", function (event) {
+                var id = $(this).attr("data-id")
 
-    $.get("/editar", { id: id }, function (respuesta) {
-        console.log(respuesta); // Verifica qué está devolviendo el servidor
-        if (respuesta.length > 0) {
-            var encuesta = respuesta[0];
+                $.get("/editar", {id: id}, function (respuesta) {
+                    console.log(respuesta)
+                    var temperaturaHumedad = respuesta[0]
 
-            $("#id").val(encuesta["Id_Experiencia"]).trigger("focus");
-            $("#NombreApellido").val(encuesta["Nombre_Apellido"]);
-            $("#Comentario").val(encuesta["Comentario"]);
-            $("#Calificacion").val(encuesta["Calificacion"]);
-        } else {
-            alert("No se encontró la encuesta con el ID proporcionado.");
-        }
-    });
-});
+                    $("#id")
+                    .val(temperaturaHumedad["Id_Log"])
+                    .trigger("focus")
 
+                    $("#temperatura").val(temperaturaHumedad["Temperatura"])
+                    $("#humedad").val(temperaturaHumedad["Humedad"])
+                })
+            })
             
             $(document).on("click", ".btn-eliminar", function (event) {
-                if (!confirm("¿Quieres eliminar este registro? dale compare")) {
+                if (!confirm("¿Quieres eliminar este registro?")) {
                     return
                 }
 
@@ -180,12 +174,12 @@
                 $.post("/eliminar", {id: id})
             })
 
-            $("#frmEncuestas")
+            $("#frmTemperaturaHumedad")
             .submit(function (event)  {
                 event.preventDefault()
 
                 $.post("/guardar", $(this).serialize(), function (respuesta) {
-                    $("#frmEncuestas").get(0).reset()
+                    $("#frmTemperaturaHumedad").get(0).reset()
                 })
             })
             .on("reset", function (event) {
@@ -193,16 +187,16 @@
             })
 
             Pusher.logToConsole = true
-            // cambiar pusher key ---> 
-            var pusher = new Pusher("e7b4efacf7381f83e05e", { 
+            
+            var pusher = new Pusher("2df86616075904231311", {
                 cluster: "us2"
             })
 
             // Canal ---> Donde se concentran los hilos con los clientes conectados
-            var channel = pusher.subscribe("canalRegistroEncuesta");
+            var channel = pusher.subscribe("canalRegistrosTemperaturaHumedad");
 
             // Evento --> El código que se accionará con la información enviada o el uso del canal
-            channel.bind("registroEventoEncuests", function (encuesta) {
+            channel.bind("registroTemperaturaHumedad", function (temperaturaHumedad) {
                 // 1. Notificar el evento
                 // alert("Ocurrió el evento")
 
