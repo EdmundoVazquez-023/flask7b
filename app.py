@@ -83,7 +83,7 @@ def guardar():
         con.reconnect()
 
     id          = request.form["id"]
-    nombreapellido = request.form["nombreApellido"]
+    nombreapellido = request.form["NombreApellido"]
     comentario     = request.form["Comentario"]
     calificacion     = request.form["Calificacion"]    
     cursor = con.cursor()
