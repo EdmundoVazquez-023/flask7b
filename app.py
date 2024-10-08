@@ -115,31 +115,23 @@ def guardar():
 
 @app.route("/editar", methods=["GET"])
 def editar():
-    try:
-        if not con.is_connected():
-            con.reconnect()
+    if not con.is_connected():
+        con.reconnect()
 
-        id = request.args.get("id")  # Utiliza 'get' para evitar errores si no existe la clave
-        cursor = con.cursor(dictionary=True)
-        sql = """
-        SELECT Id_Experiencia, Nombre_Apellido, Comentario, Calificacion
-        FROM tst0_experiencias
-        WHERE Id_Experiencia = %s
-        """
-        cursor.execute(sql, (id,))
-        registros = cursor.fetchall()
-        print(registros)  # Agrega esta línea para ver qué está trayendo la consulta
+    id = request.args["id"]
 
-        return make_response(jsonify(registros))
-    
-    except Exception as e:
-        print(f"Error: {e}")  # Registra cualquier error en el servidor
-        return str(e), 500
-    
-    finally:
-        if con.is_connected():
-            con.close()
+    cursor = con.cursor(dictionary=True)
+    sql    = """
+    SELECT Id_Experiencia, Nombre_Apellido, Comentario, Calificacion FROM tst0_experiencias
+    WHERE Id_Experiencia = %s
+    """
+    val    = (id,)
 
+    cursor.execute(sql, val)
+    registros = cursor.fetchall()
+    con.close()
+
+    return make_response(jsonify(registros))
 
 @app.route("/eliminar", methods=["POST"])
 def eliminar():
