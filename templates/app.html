@@ -20,16 +20,16 @@
           <input type="hidden" id="id" name="id">
 
           <div class="mb-1">
-              <label for="temperatura">Nombre y Apellido</label>
+              <label for="nombreApellido">Nombre y Apellido</label>
               <input type="text" id="nombreApellido" name="nombreApellido" class="form-control">
           </div>
           <div class="mb-1">
-              <label for="humedad">Comentario</label>
+              <label for="Comentario">Comentario</label>
               <input type="text" id="Comentario" name="Comentario" class="form-control">
           </div>
 
                <div class="mb-1">
-              <label for="humedad">Calificacion</label>
+              <label for="Calificacion">Calificacion</label>
               <input type="number" id="Calificacion" name="Calificacion" class="form-control">
           </div>
           <div class="mb-1">
@@ -162,7 +162,7 @@
                     .val(encuesta["Id_Experiencia"])
                     .trigger("focus")
 
-                    $("#nombreapellido").val(encuesta["NombreApellido"])
+                    $("#nombreApellido").val(encuesta["NombreApellido"])
                     $("#comentario").val(encuesta["Comentario"])
                         $("#calificacion").val(encuesta["Calificacion"])
                 })
