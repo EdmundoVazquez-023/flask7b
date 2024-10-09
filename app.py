@@ -115,7 +115,7 @@ def guardar():
 
     return make_response(jsonify({}))
 
-@app.route("/editar<int:id>", methods=["GET"])
+@app.route("/editar/<int:id>", methods=["GET"])
 def editar(id):
     if not con.is_connected():
         con.reconnect()
