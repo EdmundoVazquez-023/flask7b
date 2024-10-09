@@ -156,7 +156,7 @@
            $(document).on("click", ".btn-editar", function (event) {
      const id = $(this).data("id");
 
-    $.get("/editar", { id: id }, function (respuesta) {
+    $.get(`/editar/${id}`, function (respuesta) {
         console.log(respuesta); // Verifica qué está devolviendo el servidor
         if (respuesta.length > 0) {
             var encuesta = respuesta[0];
