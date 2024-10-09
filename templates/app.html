@@ -1,7 +1,3 @@
-
-
-
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -154,8 +150,9 @@
             buscar()
 
            $(document).on("click", ".btn-editar", function (event) {
-    const id = $(this).data("id");
-    $.get(`/editar/${id}`, function (respuesta) {
+     const id = $(this).data("id");
+
+    $.get("/editar", { id: id }, function (respuesta) {
         console.log(respuesta); // Verifica qué está devolviendo el servidor
         if (respuesta.length > 0) {
             var encuesta = respuesta[0];
@@ -178,7 +175,7 @@
 
                  const id = $(this).data("id");
 
-                $.post(`/eliminar/${id}`
+                $.post("/eliminar", {id: id})
             })
 
             $("#frmEncuestas")
@@ -226,3 +223,4 @@
     </script>    
 </body>
 </html>
+
