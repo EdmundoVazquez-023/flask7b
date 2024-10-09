@@ -160,7 +160,7 @@
         if (respuesta.length > 0) {
             var encuesta = respuesta[0];
 
-            $("#id").val(encuesta["Id_Experiencia"]);
+            $("#id").val(encuesta["Id_Experiencia"]).trigger("focus");
             $("#NombreApellido").val(encuesta["Nombre_Apellido"]);
             $("#Comentario").val(encuesta["Comentario"]);
             $("#Calificacion").val(encuesta["Calificacion"]);
