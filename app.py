@@ -135,8 +135,8 @@ def editar(id):
 
     return make_response(jsonify(registros))
 
-@app.route("/eliminar", methods=["POST"])
-def eliminar():
+@app.route("/eliminar/<int:id>", methods=["POST"])
+def eliminar(id):
     if not con.is_connected():
         con.reconnect()
 
