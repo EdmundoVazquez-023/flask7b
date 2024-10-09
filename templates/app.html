@@ -178,7 +178,7 @@
 
                  const id = $(this).data("id");
 
-                $.post("/eliminar", {id: id})
+                $.post(`/eliminar/${id}`
             })
 
             $("#frmEncuestas")
