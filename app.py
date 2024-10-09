@@ -1,6 +1,4 @@
 
-
-
     # Codigo del profe a modifcarrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr
 
 
@@ -115,8 +113,8 @@ def guardar():
 
     return make_response(jsonify({}))
 
-@app.route("/editar/<int:id>", methods=["GET"])
-def editar(id):
+@app.route("/editar", methods=["GET"])
+def editar():
     if not con.is_connected():
         con.reconnect()
 
@@ -135,8 +133,8 @@ def editar(id):
 
     return make_response(jsonify(registros))
 
-@app.route("/eliminar/<int:id>", methods=["POST"])
-def eliminar(id):
+@app.route("/eliminar", methods=["POST"])
+def eliminar():
     if not con.is_connected():
         con.reconnect()
 
@@ -156,8 +154,4 @@ def eliminar(id):
     notificarActualizacionEncuesta()
 
     return make_response(jsonify({}))
-
-
-
-
 
