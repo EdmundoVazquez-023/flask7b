@@ -154,14 +154,13 @@
             buscar()
 
            $(document).on("click", ".btn-editar", function (event) {
-     const id = $(this).data("id");
-
+    const id = $(this).data("id");
     $.get(`/editar/${id}`, function (respuesta) {
         console.log(respuesta); // Verifica qué está devolviendo el servidor
         if (respuesta.length > 0) {
             var encuesta = respuesta[0];
 
-            $("#id").val(encuesta["Id_Experiencia"]).trigger("focus");
+            $("#id").val(encuesta["Id_Experiencia"]);
             $("#NombreApellido").val(encuesta["Nombre_Apellido"]);
             $("#Comentario").val(encuesta["Comentario"]);
             $("#Calificacion").val(encuesta["Calificacion"]);
