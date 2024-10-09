@@ -1,20 +1,10 @@
-# python.exe -m venv .venv
-# cd .venv/Scripts
-# activate.bat
-# py -m ensurepip --upgrade
-
-from flask import Flask
-
-from flask import render_template
-from flask import request
-from flask import jsonify, make_response
-
-import pusher
-
+from flask import Flask, render_template, request, jsonify, make_response
 import mysql.connector
+import pusher
 import datetime
 import pytz
 
+# Conexión a la base de datos
 con = mysql.connector.connect(
     host="185.232.14.52",
     database="u760464709_tst_sep",
@@ -24,128 +14,103 @@ con = mysql.connector.connect(
 
 app = Flask(__name__)
 
+# Página principal que carga el CRUD de usuarios
 @app.route("/")
 def index():
     con.close()
-
     return render_template("app.html")
 
-@app.route("/alumnos")
-def alumnos():
+# Crear o actualizar un usuario
+@app.route("/guardar", methods=["POST"])
+def usuariosGuardar():
+    if not con.is_connected():
+        con.reconnect()
+
+    id_usuario = request.form.get("id_usuario")
+    nombre_usuario = request.form["nombre_usuario"]
+    contrasena = request.form["contrasena"]
+
+    cursor = con.cursor()
+    if id_usuario:  # Actualizar
+        sql = """
+        UPDATE tst0_usuarios SET Nombre_Usuario = %s, Contrasena = %s WHERE Id_Usuario = %s
+        """
+        val = (nombre_usuario, contrasena, id_usuario)
+    else:  # Crear nuevo usuario
+        sql = """
+        INSERT INTO tst0_usuarios (Nombre_Usuario, Contrasena) VALUES (%s, %s)
+        """
+        val = (nombre_usuario, contrasena)
+
+    cursor.execute(sql, val)
+    con.commit()
+    cursor.close()
     con.close()
 
-    return render_template("alumnos.html")
+    notificar_actualizacion_usuarios()
 
-@app.route("/alumnos/guardar", methods=["POST"])
-def alumnosGuardar():
+    return make_response(jsonify({"message": "Usuario guardado exitosamente"}))
+
+# Obtener todos los usuarios
+@app.route("/usuarios", methods=["GET"])
+def obtener_usuarios():
+    if not con.is_connected():
+        con.reconnect()
+
+    cursor = con.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM tst0_usuarios")
+    usuarios = cursor.fetchall()
+    cursor.close()
     con.close()
-    matricula      = request.form["txtMatriculaFA"]
-    nombreapellido = request.form["txtNombreApellidoFA"]
 
-    return f"Matrícula {matricula} Nombre y Apellido {nombreapellido}"
+    return make_response(jsonify(usuarios))
 
-# Código usado en las prácticas
-def notificarActualizacionTemperaturaHumedad():
+# Obtener un usuario por su ID
+@app.route("/editar", methods=["GET"])
+def editar_usuario():
+    if not con.is_connected():
+        con.reconnect()
+
+    id_usuario = request.args.get("id")
+    cursor = con.cursor(dictionary=True)
+    sql = "SELECT * FROM tst0_usuarios WHERE Id_Usuario = %s"
+    val = (id_usuario,)
+    cursor.execute(sql, val)
+    usuario = cursor.fetchone()
+    cursor.close()
+    con.close()
+
+    return make_response(jsonify(usuario))
+
+# Eliminar un usuario
+@app.route("/eliminar", methods=["POST"])
+def eliminar_usuario():
+    if not con.is_connected():
+        con.reconnect()
+
+    id_usuario = request.form["id"]
+    cursor = con.cursor()
+    sql = "DELETE FROM tst0_usuarios WHERE Id_Usuario = %s"
+    val = (id_usuario,)
+    cursor.execute(sql, val)
+    con.commit()
+    cursor.close()
+    con.close()
+
+    notificar_actualizacion_usuarios()
+
+    return make_response(jsonify({"message": "Usuario eliminado exitosamente"}))
+
+# Notificar a través de Pusher sobre actualizaciones en la tabla de usuarios
+def notificar_actualizacion_usuarios():
     pusher_client = pusher.Pusher(
-        app_id="1714541",
-        key="2df86616075904231311",
-        secret="2f91d936fd43d8e85a1a",
+        app_id="1874485",
+        key="970a7d4d6af4b86adcc6",
+        secret="2e26ccd3273ad909a49d",
         cluster="us2",
         ssl=True
     )
+    pusher_client.trigger("canalUsuarios", "actualizacion", {})
 
-    pusher_client.trigger("canalRegistrosTemperaturaHumedad", "registroTemperaturaHumedad", args)
-
-@app.route("/buscar")
-def buscar():
-    if not con.is_connected():
-        con.reconnect()
-
-    cursor = con.cursor(dictionary=True)
-    cursor.execute("""
-    SELECT Id_Log, Temperatura, Humedad, DATE_FORMAT(Fecha_Hora, '%d/%m/%Y') AS Fecha, DATE_FORMAT(Fecha_Hora, '%H:%i:%s') AS Hora FROM sensor_log
-    ORDER BY Id_Log DESC
-    LIMIT 10 OFFSET 0
-    """)
-    registros = cursor.fetchall()
-
-    con.close()
-
-    return make_response(jsonify(registros))
-
-@app.route("/guardar", methods=["POST"])
-def guardar():
-    if not con.is_connected():
-        con.reconnect()
-
-    id          = request.form["id"]
-    temperatura = request.form["temperatura"]
-    humedad     = request.form["humedad"]
-    fechahora   = datetime.datetime.now(pytz.timezone("America/Matamoros"))
-    
-    cursor = con.cursor()
-
-    if id:
-        sql = """
-        UPDATE sensor_log SET
-        Temperatura = %s,
-        Humedad     = %s
-        WHERE Id_Log = %s
-        """
-        val = (temperatura, humedad, id)
-    else:
-        sql = """
-        INSERT INTO sensor_log (Temperatura, Humedad, Fecha_Hora)
-                        VALUES (%s,          %s,      %s)
-        """
-        val =                  (temperatura, humedad, fechahora)
-    
-    cursor.execute(sql, val)
-    con.commit()
-    con.close()
-
-    notificarActualizacionTemperaturaHumedad()
-
-    return make_response(jsonify({}))
-
-@app.route("/editar", methods=["GET"])
-def editar():
-    if not con.is_connected():
-        con.reconnect()
-
-    id = request.args["id"]
-
-    cursor = con.cursor(dictionary=True)
-    sql    = """
-    SELECT Id_Log, Temperatura, Humedad FROM sensor_log
-    WHERE Id_Log = %s
-    """
-    val    = (id,)
-
-    cursor.execute(sql, val)
-    registros = cursor.fetchall()
-    con.close()
-
-    return make_response(jsonify(registros))
-
-@app.route("/eliminar", methods=["POST"])
-def eliminar():
-    if not con.is_connected():
-        con.reconnect()
-
-    id = request.form["id"]
-
-    cursor = con.cursor(dictionary=True)
-    sql    = """
-    DELETE FROM sensor_log
-    WHERE Id_Log = %s
-    """
-    val    = (id,)
-
-    cursor.execute(sql, val)
-    con.commit()
-    con.close()
-
-    notificarActualizacionTemperaturaHumedad()
-
-    return make_response(jsonify({}))
+if __name__ == "__main__":
+    app.run(debug=True)
