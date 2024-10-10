@@ -1,157 +1,126 @@
+desde flask importar Flask, render_template, solicitud, jsonify, make_response
+importar mysql.connector
+empujador de importación
+registro de importación
 
-    # Codigo del profe a modifcarrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr
+# Configura el registrador de Flask
+registro.basicConfig(nivel=registro.INFO)
 
-
-# python.exe -m venv .venv
-# cd .venv/Scripts
-# activate.bat
-# py -m ensurepip --upgrade
-
-from flask import Flask
-
-from flask import render_template
-from flask import request
-from flask import jsonify, make_response
-
-import pusher
-
-import mysql.connector
-import datetime
-import pytz
-
+# Conexión a la base de datos
 con = mysql.connector.connect(
-    host="185.232.14.52",
-    database="u760464709_tst_sep",
-    user="u760464709_tst_sep_usr",
-    password="dJ0CIAFF="
+anfitrión="185.232.14.52",
+base de datos="u760464709_tst_sep",
+usuario="u760464709_tst_sep_usr",
+contraseña="dJ0CIAFF="
 )
 
-app = Flask(__name__)
+aplicación = Flask(__nombre__)
 
-@app.route("/")
-def index():
-    con.close()
+# Página principal que carga el CRUD de experiencias
+@app.ruta("/")
+definición índice():
+logging.info ("Cargando página principal")
+con.cerrar()
+devolver render_template("app.html")
 
-    return render_template("app.html")
+# Crear o actualizar una experiencia
+@app.route("/experiencias/guardar", métodos=["POST"])
+def experienciasGuardar():
+Si no es con.is_connected():
+con.reconectar()
 
-@app.route("/alumnos")
-def alumnos():
-    con.close()
+id_experiencia = request.form.get("id_experiencia")
+nombre_apellido = request.form["nombre_apellido"]
+comentario = solicitud.formulario["comentario"]
+calificacion = solicitud.formulario["calificacion"]
 
-    return render_template("alumnos.html")
+cursor = con.cursor()
+if id_experiencia:#Actualizar
+sql = """
+ACTUALIZAR tst0_experiencias SET Nombre_Apellido = %s, Comentario = %s, Calificacion = %s WHERE Id_Experiencia = %s
+"""
+val = (nombre_apellido, comentario, calificación, id_experiencia)
+logging.info (f"Actualizando experiencia con ID: {id_experiencia}")
+más: # Crear nueva experiencia
+sql = """
+INSERT INTO tst0_experiencias (Nombre_Apellido, Comentario, Calificacion) VALORES (%s, %s, %s)
+"""
+val = (nombre_apellido, comentario, calificación)
+logging.info (f"Creando nueva experiencia: {nombre_apellido}")
 
-@app.route("/alumnos/guardar", methods=["POST"])
-def alumnosGuardar():
-    con.close()
-    matricula      = request.form["txtMatriculaFA"]
-    nombreapellido = request.form["txtNombreApellidoFA"]
+cursor.execute(sql, val)
+con.commit()
+cursor.cerrar()
+con.cerrar()
 
-    return f"Matrícula {matricula} Nombre y Apellido {nombreapellido}"
+notificación_actualizacion_experiencias()
 
-# Código usado en las prácticas
-def notificarActualizacionEncuesta():
-    pusher_client = pusher.Pusher(
-        app_id="1766032",
-        key="e7b4efacf7381f83e05e",
-        secret="134ff4754740b57ad585",
-        cluster="us2",
-        ssl=True
+return make_response(jsonify({"message": "Experiencia guardada exitosamente"}))
 
-    )
+# Obtener todas las experiencias
+@app.route("/experiencias", métodos=["GET"])
+def obtener_experiencias():
+Si no es con.is_connected():
+con.reconectar()
 
-    pusher_client.trigger("canalRegistroEncuesta", "registroEventoEncuests", args)
+cursor = con.cursor(diccionario=Verdadero)
+cursor.execute("SELECT * FROM tst0_experiencias")
+experiencias = cursor.fetchall()
+cursor.cerrar()
+con.cerrar()
 
-@app.route("/buscar")
-def buscar():
-    if not con.is_connected():
-        con.reconnect()
-    cursor = con.cursor()
-    cursor.execute("SELECT * FROM tst0_experiencias ORDER BY Id_Experiencia DESC")
+logging.info ("Obteniendo lista de experiencias")
+devuelve make_response(jsonify(experiencias))
 
-    registros = cursor.fetchall()
-    con.close()
+# Obtener una experiencia por su ID sin usar query string
+@app.route("/experiencias/editar/<int:id_experiencia>", métodos=["GET"])
+def editar_experiencia(id_experiencia):
+Si no es con.is_connected():
+con.reconectar()
 
-    return registros
+cursor = con.cursor(diccionario=Verdadero)
+sql = "SELECT * FROM tst0_experiencias WHERE Id_Experiencia = %s"
+val = (id_experiencia,)
+cursor.execute(sql, val)
+experiencia = cursor.fetchone()
+cursor.cerrar()
+con.cerrar()
 
-    return make_response(jsonify(registros))
+logging.info (f"Obteniendo datos de la experiencia con ID: {id_experiencia}")
+devuelve make_response(jsonify(experiencia))
 
+# Eliminar una experiencia usando el ID en la URL
+@app.route("/experiencias/eliminar/<int:id_experiencia>", métodos=["POST"])
+def eliminar_experiencia(id_experiencia):
+logging.info (f"Intentando eliminar la experiencia con ID: {id_experiencia}")
 
+Si no es con.is_connected():
+con.reconectar()
 
-@app.route("/guardar", methods=["POST"])
-def guardar():
-    if not con.is_connected():
-        con.reconnect()
+cursor = con.cursor()
+sql = "BORRAR DE tst0_experiencias DONDE Id_Experiencia = %s"
+val = (id_experiencia,)
+cursor.execute(sql, val)
+con.commit()
+cursor.cerrar()
+con.cerrar()
 
-    id          = request.form["id"]
-    nombreapellido = request.form["NombreApellido"]
-    comentario     = request.form["Comentario"]
-    calificacion     = request.form["Calificacion"]    
-    cursor = con.cursor()
+notificación_actualizacion_experiencias()
 
-    if id:
-        sql = """
-        UPDATE tst0_experiencias SET
-        Nombre_Apellido = %s,
-        Comentario     = %s,
-        Calificacion     = %s
+logging.info (f"Experiencia con ID {id_experiencia} eliminada exitosamente.")
+return make_response(jsonify({"message": "Experiencia eliminada exitosamente"}))
 
-        WHERE Id_Experiencia = %s
-        """
-        val = (nombreapellido, comentario, calificacion, id)
-    else:
-        sql = """
-        INSERT INTO tst0_experiencias (Nombre_Apellido, Comentario, Calificacion)
-                        VALUES (%s,          %s,      %s       )
-        """
-        val =                  (nombreapellido, comentario, calificacion)
-    
-    cursor.execute(sql, val)
-    con.commit()
-    con.close()
+# Notificar a través de Pusher sobre actualizaciones en la tabla de experiencias
+def notificación_actualizacion_experiencias():
+pusher_client = pusher.Pusher(
+aplicación_id="1766032",
+clave="e7b4efacf7381f83e05e",
+secreto="134ff4754740b57ad585",
+grupo="us2",
+ssl=Verdadero
+)
+pusher_client.trigger("canalExperiencias", "actualizacion", {})
+logging.info ("Notificación enviada a través de Pusher")
 
-    notificarActualizacionEncuesta()
-
-    return make_response(jsonify({}))
-
-@app.route("/editar", methods=["GET"])
-def editar():
-    if not con.is_connected():
-        con.reconnect()
-
-    id = request.args["id"]
-
-    cursor = con.cursor(dictionary=True)
-    sql    = """
-    SELECT Id_Experiencia, Nombre_Apellido, Comentario, Calificacion FROM tst0_experiencias
-    WHERE Id_Experiencia = %s
-    """
-    val    = (id,)
-
-    cursor.execute(sql, val)
-    registros = cursor.fetchall()
-    con.close()
-
-    return make_response(jsonify(registros))
-
-@app.route("/eliminar", methods=["POST"])
-def eliminar():
-    if not con.is_connected():
-        con.reconnect()
-
-    id = request.form["id"]
-
-    cursor = con.cursor(dictionary=True)
-    sql    = """
-    DELETE FROM tst0_experiencias
-    WHERE Id_Experiencia = %s
-    """
-    val    = (id,)
-
-    cursor.execute(sql, val)
-    con.commit()
-    con.close()
-
-    notificarActualizacionEncuesta()
-
-    return make_response(jsonify({}))
-
+si __nombre__ == "__principal__":
+aplicación.run(debug=Verdadero)
