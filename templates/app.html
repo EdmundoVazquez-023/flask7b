@@ -71,7 +71,7 @@
         // Editar experiencia usando ruta sin cadena de consulta
         $(document).on("click", ".btn-editar", function () {
             const id_experiencia = $(this).data("id");
-            $.get(`/experiencias/editar/${id_experiencia}`, function (experiencia) {
+            $.get(`/editar/${id_experiencia}`, function (experiencia) {
                 $("#id_experiencia").val(experiencia.Id_Experiencia);
                 $("#nombre_apellido").val(experiencia.Nombre_Apellido);
                 $("#comentario").val(experiencia.Comentario);
@@ -83,7 +83,7 @@
         $(document).on("click", ".btn-eliminar", function () {
             if (!confirm("¿Seguro que deseas eliminar esta experiencia?")) return;
             const id_experiencia = $(this).data("id");
-            $.post(`/experiencias/eliminar/${id_experiencia}`, function () {
+            $.post(`/eliminar/${id_experiencia}`, function () {
                 cargarExperiencias();
             });
         });
@@ -91,7 +91,7 @@
         // Guardar o actualizar experiencia
         $("#frmExperiencia").submit(function (evento) {
             evento.preventDefault();
-            $.post("/experiencias/guardar", $(this).serialize(), function () {
+            $.post("/guardar", $(this).serialize(), function () {
                 $("#frmExperiencia").get(0).reset();
                 cargarExperiencias();
             });
