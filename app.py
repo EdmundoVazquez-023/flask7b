@@ -24,7 +24,7 @@ def index():
     return render_template("app.html")
 
 # Crear o actualizar una experiencia
-@app.route("/experiencias/guardar", methods=["POST"])
+@app.route("/guardar", methods=["POST"])
 def experienciasGuardar():
     if not con.is_connected():
         con.reconnect()
@@ -73,7 +73,7 @@ def obtener_experiencias():
     return make_response(jsonify(experiencias))
 
 # Obtener una experiencia por su ID sin usar query string
-@app.route("/experiencias/editar/<int:id_experiencia>", methods=["GET"])
+@app.route("/editar/<int:id_experiencia>", methods=["GET"])
 def editar_experiencia(id_experiencia):
     if not con.is_connected():
         con.reconnect()
@@ -90,7 +90,7 @@ def editar_experiencia(id_experiencia):
     return make_response(jsonify(experiencia))
 
 # Eliminar una experiencia usando el ID en la URL
-@app.route("/experiencias/eliminar/<int:id_experiencia>", methods=["POST"])
+@app.route("/eliminar/<int:id_experiencia>", methods=["POST"])
 def eliminar_experiencia(id_experiencia):
     logging.info(f"Intentando eliminar la experiencia con ID: {id_experiencia}")
    
