@@ -77,7 +77,7 @@
             $("#experienceForm").submit(function (event) {
                 event.preventDefault();
 
-                $.post("/app/guardar", $(this).serialize(), function (respuesta) {
+                $.post("/guardar", $(this).serialize(), function (respuesta) {
                     console.log(respuesta);
                     buscar(); // Actualizar la tabla después de guardar el nuevo registro
                 });
