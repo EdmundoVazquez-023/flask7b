@@ -30,7 +30,8 @@ def alumnosGuardar():
  
 
     # Devolviendo una respuesta con los datos recibidos
-    return f"Titulo: {titulo}, Descripcion: {descripcion}"
+    return f"Titulo: {Titulo}, Descripcion: {Descripcion}"
+
 #buscar
 @app.route("/buscar")
 def buscar():
@@ -54,7 +55,7 @@ def registrar():
     cursor = con.cursor()
 
     # SQL para insertar los datos en la tabla 'tst0_tareas'
-    sql = "INSERT INTO tst0_tareas (Titulo, Descripcion) VALUES (%s, %s, %s)"
+    sql = "INSERT INTO tst0_tareas (Titulo, Descripcion) VALUES (%s, %s)"
    
     # Valores obtenidos de los parámetros en la URL (por ejemplo: ?name=Juan&comment=Buen+trabajo&rating=5)
     val = (args.get("titulo"), args.get("descripcion"))
