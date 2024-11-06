@@ -1,3 +1,4 @@
+from flask_cors import CORS, cross_origin #linea nueva
 from flask import Flask, render_template, request, jsonify
 import pusher
 import mysql.connector
@@ -12,6 +13,7 @@ con = mysql.connector.connect(
 )
 
 app = Flask(__name__)
+CORS(APP) #linea nueva
 
 # Ruta principal que sirve una página de inicio
 @app.route("/")
