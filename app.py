@@ -1,4 +1,5 @@
 from flask import Flask
+from flask_cors import CORS, cross_origin #linea nueva
 
 from flask import render_template
 from flask import request
@@ -18,6 +19,7 @@ con = mysql.connector.connect(
 )
 
 app = Flask(__name__)
+CORS(app) #linea nueva
 
 @app.route("/")
 def index():
