@@ -1,5 +1,6 @@
-from flask_cors import CORS, cross_origin #linea nueva
 from flask import Flask, render_template, request, jsonify
+from flask_cors import CORS, cross_origin #linea nueva
+
 import pusher
 import mysql.connector
 import pytz
