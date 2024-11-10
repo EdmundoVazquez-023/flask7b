@@ -84,8 +84,10 @@ def guardar():
     # Aquí solo los mostramos en la consola
     print(f"Nombre: {nombre}, Comentario: {comentario}, Calificación: {calificacion}")
 
-    # Responder a Flet con un mensaje de éxito
-    return jsonify({"message": "Datos guardados exitosamente"}), 200
+    @app.route("/example", methods=["GET"])
+def example():
+    # Coloca el return dentro de una función
+    return make_response(jsonify({}))
 
 if __name__ == "__main__":
     app.run(debug=True)
