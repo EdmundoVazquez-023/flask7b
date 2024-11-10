@@ -80,18 +80,6 @@ def guardar():
     comentario     = request.form["Comentario"]
     calificacion     = request.form["Calificacion"]    
     cursor = con.cursor()
- # Procesar los datos (por ejemplo, guardarlos en una base de datos)
-    # Aquí solo los mostramos en la consola
-    print(f"Nombre: {nombre}, Comentario: {comentario}, Calificación: {calificacion}")
-
-    @app.route("/example", methods=["GET"])
-def example():
-    # Coloca el return dentro de una función
-    return make_response(jsonify({}))
-
-if __name__ == "__main__":
-    app.run(debug=True)
-    #codigo nuevo
     
     if id:
         sql = """
