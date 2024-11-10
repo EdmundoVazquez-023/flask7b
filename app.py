@@ -80,7 +80,17 @@ def guardar():
     comentario     = request.form["Comentario"]
     calificacion     = request.form["Calificacion"]    
     cursor = con.cursor()
+ # Procesar los datos (por ejemplo, guardarlos en una base de datos)
+    # Aquí solo los mostramos en la consola
+    print(f"Nombre: {nombre}, Comentario: {comentario}, Calificación: {calificacion}")
 
+    # Responder a Flet con un mensaje de éxito
+    return jsonify({"message": "Datos guardados exitosamente"}), 200
+
+if __name__ == "__main__":
+    app.run(debug=True)
+    #codigo nuevo
+    
     if id:
         sql = """
         UPDATE tst0_experiencias SET
