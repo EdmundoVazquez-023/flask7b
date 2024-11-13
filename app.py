@@ -1,16 +1,9 @@
-from flask import Flask
-from flask_cors import CORS, cross_origin #linea nueva
-
-from flask import render_template
-from flask import request
-from flask import jsonify, make_response
-
+from flask import Flask, render_template, request, jsonify, make_response
+from flask_cors import CORS
+import mysql.connector
 import pusher
 
-import mysql.connector
-import datetime
-import pytz
-
+# Configuración de conexión a la base de datos
 con = mysql.connector.connect(
     host="185.232.14.52",
     database="u760464709_tst_sep",
@@ -19,28 +12,7 @@ con = mysql.connector.connect(
 )
 
 app = Flask(__name__)
-CORS(app) #linea nueva
-
-@app.route("/")
-def index():
-    con.close()
-
-    return render_template("app.html")
-
-@app.route("/alumnos")
-def alumnos():
-    con.close()
-
-    return render_template("alumnos.html")
-
-@app.route("/alumnos/guardar", methods=["POST"])
-def alumnosGuardar():
-    con.close()
-    matricula      = request.form["txtMatriculaFA"]
-    nombreapellido = request.form["txtNombreApellidoFA"]
-
-    return f"Matrícula {matricula} Nombre y Apellido {nombreapellido}"
-
+CORS(app)
 
 # Función para enviar notificación de actualización
 def notificarActualizacionEncuesta():
