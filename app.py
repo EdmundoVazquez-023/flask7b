@@ -75,38 +75,33 @@ def guardar():
     if not con.is_connected():
         con.reconnect()
 
-    # Obtener los datos enviados como JSON
-    data = request.get_json()
-
-    # Extraer los valores del JSON
-    nombreapellido = data.get("NombreApellido")
-    comentario = data.get("Comentario")
-    calificacion = data.get("Calificacion")
-    id = data.get("id", None)  # El id podría ser None si no se pasa
-
+    id          = request.form["id"]
+    nombreapellido = request.form["NombreApellido"]
+    comentario     = request.form["Comentario"]
+    calificacion     = request.form["Calificacion"]    
     cursor = con.cursor()
 
     if id:
-        # Actualizar datos si el ID existe
         sql = """
         UPDATE tst0_experiencias SET
         Nombre_Apellido = %s,
-        Comentario = %s,
-        Calificacion = %s
+        Comentario     = %s,
+        Calificacion     = %s
+
         WHERE Id_Experiencia = %s
         """
         val = (nombreapellido, comentario, calificacion, id)
     else:
-        # Insertar nuevo registro si el ID no está presente
         sql = """
         INSERT INTO tst0_experiencias (Nombre_Apellido, Comentario, Calificacion)
-        VALUES (%s, %s, %s)
+                        VALUES (%s,          %s,      %s       )
         """
-        val = (nombreapellido, comentario, calificacion)
+        val =                  (nombreapellido, comentario, calificacion)
     
     cursor.execute(sql, val)
     con.commit()
     con.close()
+
     notificarActualizacionEncuesta()
 
     return make_response(jsonify({}))
