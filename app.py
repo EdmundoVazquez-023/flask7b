@@ -41,7 +41,8 @@ def alumnosGuardar():
 
     return f"Matrícula {matricula} Nombre y Apellido {nombreapellido}"
 
-# Código usado en las prácticas
+
+# Función para enviar notificación de actualización
 def notificarActualizacionEncuesta():
     pusher_client = pusher.Pusher(
         app_id="1766032",
@@ -49,10 +50,22 @@ def notificarActualizacionEncuesta():
         secret="134ff4754740b57ad585",
         cluster="us2",
         ssl=True
-
     )
+    pusher_client.trigger("canalRegistroEncuesta", "registroEventoEncuesta", {})
 
-    pusher_client.trigger("canalRegistroEncuesta", "registroEventoEncuests", args)
+@app.route("/")
+def index():
+    return render_template("app.html")
+
+@app.route("/alumnos")
+def alumnos():
+    return render_template("alumnos.html")
+
+@app.route("/alumnos/guardar", methods=["POST"])
+def alumnos_guardar():
+    matricula = request.form.get("txtMatriculaFA") or request.json.get("txtMatriculaFA")
+    nombreapellido = request.form.get("txtNombreApellidoFA") or request.json.get("txtNombreApellidoFA")
+    return f"Matrícula {matricula} Nombre y Apellido {nombreapellido}"
 
 @app.route("/buscar")
 def buscar():
@@ -60,28 +73,23 @@ def buscar():
         con.reconnect()
     cursor = con.cursor()
     cursor.execute("SELECT * FROM tst0_experiencias ORDER BY Id_Experiencia DESC")
-
     registros = cursor.fetchall()
     con.close()
-
-    return registros
-
     return make_response(jsonify(registros))
-
-
 
 @app.route("/guardar", methods=["POST"])
 def guardar():
     if not con.is_connected():
         con.reconnect()
 
-    data = request.json
-    nombreapellido = data.get("Nombre_Apellido")
-    comentario = data.get("Comentario")
-    calificacion = data.get("Calificacion")
-    id = data.get("id")
+    # Obtener los datos ya sea de `form` o de `json`
+    id = request.form.get("id") or request.json.get("id")
+    nombreapellido = request.form.get("NombreApellido") or request.json.get("NombreApellido")
+    comentario = request.form.get("Comentario") or request.json.get("Comentario")
+    calificacion = request.form.get("Calificacion") or request.json.get("Calificacion")
 
     cursor = con.cursor()
+
     if id:
         sql = """
         UPDATE tst0_experiencias SET
@@ -97,37 +105,47 @@ def guardar():
         VALUES (%s, %s, %s)
         """
         val = (nombreapellido, comentario, calificacion)
-
+    
     cursor.execute(sql, val)
     con.commit()
     con.close()
     notificarActualizacionEncuesta()
-    return jsonify({"message": "Registro guardado exitosamente"})
+
+    return make_response(jsonify({}))
 
 @app.route("/editar", methods=["GET"])
 def editar():
     if not con.is_connected():
         con.reconnect()
-    
+
+    # `id` se pasa en los parámetros de consulta
     id = request.args.get("id_experiencia")
+
     cursor = con.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM tst0_experiencias WHERE Id_Experiencia = %s", (id,))
-    registro = cursor.fetchone()
+    sql = """
+    SELECT Id_Experiencia, Nombre_Apellido, Comentario, Calificacion 
+    FROM tst0_experiencias
+    WHERE Id_Experiencia = %s
+    """
+    cursor.execute(sql, (id,))
+    registros = cursor.fetchall()
     con.close()
-    return jsonify(registro)
+
+    return make_response(jsonify(registros))
 
 @app.route("/eliminar", methods=["POST"])
 def eliminar():
     if not con.is_connected():
         con.reconnect()
 
-    data = request.json
-    id = data.get("Id_experiencia")
+    # Obtener `id` ya sea de `form` o de `json`
+    id = request.form.get("id_experiencia") or request.json.get("id_experiencia")
 
     cursor = con.cursor()
-    cursor.execute("DELETE FROM tst0_experiencias WHERE Id_Experiencia = %s", (id,))
+    sql = "DELETE FROM tst0_experiencias WHERE Id_Experiencia = %s"
+    cursor.execute(sql, (id,))
     con.commit()
     con.close()
     notificarActualizacionEncuesta()
-    return jsonify({"message": "Registro eliminado exitosamente"})
+
     return make_response(jsonify({}))
