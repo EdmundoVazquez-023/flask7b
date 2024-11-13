@@ -75,75 +75,59 @@ def guardar():
     if not con.is_connected():
         con.reconnect()
 
-    id          = request.form["id"]
-    nombreapellido = request.form["NombreApellido"]
-    comentario     = request.form["Comentario"]
-    calificacion     = request.form["Calificacion"]    
-    cursor = con.cursor()
+    data = request.json
+    nombreapellido = data.get("NombreApellido")
+    comentario = data.get("Comentario")
+    calificacion = data.get("Calificacion")
+    id = data.get("id")
 
+    cursor = con.cursor()
     if id:
         sql = """
         UPDATE tst0_experiencias SET
         Nombre_Apellido = %s,
-        Comentario     = %s,
-        Calificacion     = %s
-
+        Comentario = %s,
+        Calificacion = %s
         WHERE Id_Experiencia = %s
         """
         val = (nombreapellido, comentario, calificacion, id)
     else:
         sql = """
         INSERT INTO tst0_experiencias (Nombre_Apellido, Comentario, Calificacion)
-                        VALUES (%s,          %s,      %s       )
+        VALUES (%s, %s, %s)
         """
-        val =                  (nombreapellido, comentario, calificacion)
-    
+        val = (nombreapellido, comentario, calificacion)
+
     cursor.execute(sql, val)
     con.commit()
     con.close()
-
     notificarActualizacionEncuesta()
-
-    return make_response(jsonify({}))
+    return jsonify({"message": "Registro guardado exitosamente"})
 
 @app.route("/editar", methods=["GET"])
 def editar():
     if not con.is_connected():
         con.reconnect()
-
-    id = request.args["id"]
-
+    
+    id = request.args.get("id_experiencia")
     cursor = con.cursor(dictionary=True)
-    sql    = """
-    SELECT Id_Experiencia, Nombre_Apellido, Comentario, Calificacion FROM tst0_experiencias
-    WHERE Id_Experiencia = %s
-    """
-    val    = (id,)
-
-    cursor.execute(sql, val)
-    registros = cursor.fetchall()
+    cursor.execute("SELECT * FROM tst0_experiencias WHERE Id_Experiencia = %s", (id,))
+    registro = cursor.fetchone()
     con.close()
-
-    return make_response(jsonify(registros))
+    return jsonify(registro)
 
 @app.route("/eliminar", methods=["POST"])
 def eliminar():
     if not con.is_connected():
         con.reconnect()
 
-    id = request.form["id"]
+    data = request.json
+    id = data.get("id_experiencia")
 
-    cursor = con.cursor(dictionary=True)
-    sql    = """
-    DELETE FROM tst0_experiencias
-    WHERE Id_Experiencia = %s
-    """
-    val    = (id,)
-
-    cursor.execute(sql, val)
+    cursor = con.cursor()
+    cursor.execute("DELETE FROM tst0_experiencias WHERE Id_Experiencia = %s", (id,))
     con.commit()
     con.close()
-
     notificarActualizacionEncuesta()
-
+    return jsonify({"message": "Registro eliminado exitosamente"})
     return make_response(jsonify({}))
