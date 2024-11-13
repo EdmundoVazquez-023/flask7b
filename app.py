@@ -76,7 +76,7 @@ def guardar():
         con.reconnect()
 
     data = request.json
-    nombreapellido = data.get("NombreApellido")
+    nombreapellido = data.get("Nombre_Apellido")
     comentario = data.get("Comentario")
     calificacion = data.get("Calificacion")
     id = data.get("id")
@@ -122,7 +122,7 @@ def eliminar():
         con.reconnect()
 
     data = request.json
-    id = data.get("id_experiencia")
+    id = data.get("Id_experiencia")
 
     cursor = con.cursor()
     cursor.execute("DELETE FROM tst0_experiencias WHERE Id_Experiencia = %s", (id,))
